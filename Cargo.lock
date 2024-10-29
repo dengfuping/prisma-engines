@@ -2779,7 +2779,7 @@ dependencies = [
 [[package]]
 name = "mysql_async"
 version = "0.34.2"
-source = "git+https://github.com/dengfuping/mysql_async?branch=sync-upstream-from-blackbeam#06172ee470e5db6ddbc098bb8f51a4a37ec79d03"
+source = "git+https://github.com/dengfuping/mysql_async?branch=sync-upstream-from-blackbeam#b16655a3c379fc603688c493a9cb1fcea23b1aed"
 dependencies = [
  "bytes",
  "crossbeam",

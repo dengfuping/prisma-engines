@@ -3,11 +3,10 @@
 use crate::error::{Error, ErrorKind};
 use percent_encoding::percent_decode;
 use std::{
-    borrow::Cow,
-    path::{Path, PathBuf},
-    time::Duration,
+    borrow::Cow, path::Path, time::Duration
 };
 use url::{Host, Url};
+use mysql_async::PathOrBuf;
 
 /// Wraps a connection url and exposes the parsing logic used by quaint, including default values.
 #[derive(Debug, Clone)]
@@ -152,7 +151,7 @@ impl MysqlUrl {
         let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
         let mut prefer_socket = None;
         let mut statement_cache_size = 100;
-        let mut identity: Option<(Option<PathBuf>, Option<String>)> = None;
+        let mut identity: Option<(Option<PathOrBuf>, Option<String>)> = None;
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
@@ -173,7 +172,9 @@ impl MysqlUrl {
 
                     #[cfg(feature = "mysql-native")]
                     {
-                        ssl_opts = ssl_opts.with_root_cert_path(Some(Path::new(&*v).to_path_buf()));
+                        let root_certs_path: Vec<&str> = v.to_string().split(",").collect();
+                        let root_certs: Vec<PathOrBuf<'static>> = v.to_string().split(",").enumerate().map(|(i, val) | Path::new(val).to_path_buf()).collect();
+                        ssl_opts = ssl_opts.with_root_certs(root_certs);
                     }
                 }
                 "sslidentity" => {
