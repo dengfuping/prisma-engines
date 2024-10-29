@@ -120,6 +120,11 @@ impl MysqlUrl {
         self.query_params.prefer_socket
     }
 
+    /// Enable cleartext plugin
+    pub fn enable_cleartext_plugin(&self) -> Option<bool> {
+        self.query_params.enable_cleartext_plugin
+    }
+
     /// The maximum connection lifetime
     pub fn max_connection_lifetime(&self) -> Option<Duration> {
         self.query_params.max_connection_lifetime
@@ -151,6 +156,7 @@ impl MysqlUrl {
         let mut max_connection_lifetime = None;
         let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
         let mut prefer_socket = None;
+        let mut enable_cleartext_plugin = None;
         let mut statement_cache_size = 100;
         let mut identity: Option<(Option<PathBuf>, Option<String>)> = None;
 
@@ -206,6 +212,12 @@ impl MysqlUrl {
                         .parse::<bool>()
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     prefer_socket = Some(as_bool)
+                }
+                "enable_cleartext_plugin" => {
+                    let as_bool = v
+                        .parse::<bool>()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    enable_cleartext_plugin = Some(as_bool)
                 }
                 "connect_timeout" => {
                     let as_int = v
@@ -302,6 +314,7 @@ impl MysqlUrl {
             max_connection_lifetime,
             max_idle_connection_lifetime,
             prefer_socket,
+            enable_cleartext_plugin,
             statement_cache_size,
         })
     }
@@ -327,6 +340,7 @@ pub(crate) struct MysqlUrlQueryParams {
     pub(crate) max_connection_lifetime: Option<Duration>,
     pub(crate) max_idle_connection_lifetime: Option<Duration>,
     pub(crate) prefer_socket: Option<bool>,
+    pub(crate) enable_cleartext_plugin: Option<bool>,
     pub(crate) statement_cache_size: usize,
 
     #[cfg(feature = "mysql-native")]
@@ -359,6 +373,13 @@ mod tests {
         let url =
             MysqlUrl::new(Url::parse("mysql://root:root@localhost:3307/testdb?prefer_socket=false").unwrap()).unwrap();
         assert!(!url.prefer_socket().unwrap());
+    }
+
+    #[test]
+    fn should_parse_enable_cleartext_plugin() {
+        let url =
+            MysqlUrl::new(Url::parse("mysql://root:root@localhost:3307/testdb?enable_cleartext_plugin=true").unwrap()).unwrap();
+        assert!(!url.enable_cleartext_plugin().unwrap());
     }
 
     #[test]

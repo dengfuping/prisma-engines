@@ -64,6 +64,10 @@ impl MysqlUrl {
             config = config.prefer_socket(self.query_params.prefer_socket);
         }
 
+        if self.query_params.enable_cleartext_plugin.is_some() {
+            config = config.enable_cleartext_plugin(self.query_params.enable_cleartext_plugin.unwrap());
+        }
+
         config
     }
 }
