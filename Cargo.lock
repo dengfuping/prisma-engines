@@ -2753,7 +2753,7 @@ dependencies = [
 [[package]]
 name = "mysql_async"
 version = "0.31.3"
-source = "git+https://github.com/prisma/mysql_async?branch=vendored-openssl#0d40d0d2c332fc97512bff81e82e62002f03c224"
+source = "git+https://github.com/dengfuping/mysql_async?branch=fix-issue-24010-plan-b#9c96e05899fd1dc7fc36124677a9683a4486f2b4"
 dependencies = [
  "bytes",
  "crossbeam",

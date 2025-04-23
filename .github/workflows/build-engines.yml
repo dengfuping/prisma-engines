@@ -192,9 +192,9 @@ jobs:
       - build-react-native
       - build-windows
     env:
-      BUCKET_NAME: 'prisma-builds'
+      BUCKET_NAME: 'oceanbase-prisma-builds'
       PRISMA_ENGINES_COMMIT_SHA: ${{ github.sha }}
-      DESTINATION_TARGET_PATH: 's3://prisma-builds/all_commits/${{ github.sha }}'
+      DESTINATION_TARGET_PATH: 's3://oceanbase-prisma-builds/all_commits/${{ github.sha }}'
 
     steps:
       # Because we need the scripts
@@ -212,22 +212,22 @@ jobs:
           # run-id: 9526334324
           # github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 'R2: Check if artifacts were already built and uploaded before via `.finished` file'
-        env:
-          FILE_PATH: 'all_commits/${{ github.sha }}/.finished'
-          FILE_PATH_LEGACY: 'all_commits/${{ github.sha }}/rhel-openssl-1.1.x/.finished'
-          AWS_DEFAULT_REGION: 'auto'
-          AWS_ACCESS_KEY_ID: ${{ vars.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_ENDPOINT_URL_S3: ${{ vars.R2_ENDPOINT }}
-        working-directory: .github/workflows/utils
-        run: bash checkFinishedMarker.sh
+      # - name: 'R2: Check if artifacts were already built and uploaded before via `.finished` file'
+      #   env:
+      #     FILE_PATH: 'all_commits/${{ github.sha }}/.finished'
+      #     FILE_PATH_LEGACY: 'all_commits/${{ github.sha }}/rhel-openssl-1.1.x/.finished'
+      #     AWS_DEFAULT_REGION: 'auto'
+      #     AWS_ACCESS_KEY_ID: ${{ vars.R2_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      #     AWS_ENDPOINT_URL_S3: ${{ vars.R2_ENDPOINT }}
+      #   working-directory: .github/workflows/utils
+      #   run: bash checkFinishedMarker.sh
 
       - name: 'S3: Check if artifacts were already built and uploaded before via `.finished` file'
         env:
           FILE_PATH: 'all_commits/${{ github.sha }}/.finished'
           FILE_PATH_LEGACY: 'all_commits/${{ github.sha }}/rhel-openssl-1.1.x/.finished'
-          AWS_DEFAULT_REGION: 'eu-west-1'
+          AWS_DEFAULT_REGION: 'ap-southeast-1'
           AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         working-directory: .github/workflows/utils
@@ -306,28 +306,29 @@ jobs:
 
           ls -Rl .
 
-      - name: 'Cloudflare R2: Upload to bucket and verify uploaded files then create `.finished` file'
-        # https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-envvars.html
-        env:
-          AWS_DEFAULT_REGION: 'auto'
-          AWS_ACCESS_KEY_ID: ${{ vars.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_ENDPOINT_URL_S3: ${{ vars.R2_ENDPOINT }}
-        run: bash .github/workflows/utils/uploadAndVerify.sh engines-artifacts-for-r2
+      # - name: 'Cloudflare R2: Upload to bucket and verify uploaded files then create `.finished` file'
+      #   # https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-envvars.html
+      #   env:
+      #     AWS_DEFAULT_REGION: 'auto'
+      #     AWS_ACCESS_KEY_ID: ${{ vars.R2_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      #     AWS_ENDPOINT_URL_S3: ${{ vars.R2_ENDPOINT }}
+      #   run: bash .github/workflows/utils/uploadAndVerify.sh engines-artifacts-for-r2
 
       - name: 'AWS S3: Upload to bucket and verify uploaded files then create `.finished` file'
         env:
-          AWS_DEFAULT_REGION: 'eu-west-1'
+          AWS_DEFAULT_REGION: 'ap-southeast-1'
           AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: bash .github/workflows/utils/uploadAndVerify.sh engines-artifacts-for-s3
 
-      - name: Repository dispatch to prisma/engines-wrapper
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          repository: prisma/engines-wrapper
-          event-type: publish-engines
-          client-payload: '{ "commit": "${{ github.sha }}", "branch": "${{ github.head_ref || github.ref_name }}" }'
-          token: ${{ secrets.PRISMA_BOT_TOKEN }}
+      # - name: Repository dispatch to prisma/engines-wrapper
+      #   uses: peter-evans/repository-dispatch@v3
+      #   with:
+      #     repository: prisma/engines-wrapper
+      #     event-type: publish-engines
+      #     client-payload: '{ "commit": "${{ github.sha }}", "branch": "${{ github.head_ref || github.ref_name }}" }'
+      #     token: ${{ secrets.PRISMA_BOT_TOKEN }}
       - name: Cleanup local directories
-        run: rm -rf engines-artifacts engines-artifacts-for-r2 engines-artifacts-for-s3
+        # run: rm -rf engines-artifacts engines-artifacts-for-r2 engines-artifacts-for-s3
+        run: rm -rf engines-artifacts engines-artifacts-for-s3
